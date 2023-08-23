@@ -1,0 +1,188 @@
+using System;
+using System.Collections.Generic;
+
+namespace ConsoleApp37
+{
+    internal class Program
+    {
+        private static Character player;
+
+        static void Main(string[] args)
+        {
+            playerInfo();
+            gameStart();
+        }
+
+        static void CharacterInfo()
+        {
+            CalculatePlayerStats();
+            Console.Clear();
+            Console.WriteLine("상태보기");
+            Console.WriteLine("캐릭터의 정보가 표시됩니다.\n\n\n\n");
+            Console.WriteLine("레벨 : {0}", player.Level);
+            Console.WriteLine("닉네임 : {0}({1})", player.Name, player.Job);
+            Console.WriteLine("공격력 : {0} (+{1})", player.Atk, CalculateStatChange("Atk"));
+            Console.WriteLine("방어력 : {0} (+{1})", player.Def, CalculateStatChange("Def"));
+            Console.WriteLine("체력 : {0}", player.Hp);
+            Console.WriteLine("소지골드 : {0}", player.Gold);
+            Console.WriteLine("\n\n0. 나가기\n\n\n");
+            Console.WriteLine("원하시는 행동을 입력해주세요");
+            Input();
+        }
+
+        static int CalculateStatChange(string statType)
+        {
+            int statChange = 0;
+            foreach (string itemName in player.EquippedItems)
+            {
+                if (itemName == "허름한 갑옷")
+                {
+                    if (statType == "Def")
+                        statChange += 2;
+                }
+                else if (itemName == "낡은 검")
+                {
+                    if (statType == "Atk")
+                        statChange += 2;
+                }
+            }
+            return statChange;
+        }
+
+        static void CalculatePlayerStats()
+        {
+            int baseAtk = 10;
+            int baseDef = 5;
+
+            foreach (string itemName in player.EquippedItems)
+            {
+                if (itemName == "허름한 갑옷")
+                {
+                    baseDef += 2;
+                }
+                else if (itemName == "낡은 검")
+                {
+                    baseAtk += 2;
+                }
+            }
+
+            player.Atk = baseAtk;
+            player.Def = baseDef;
+        }
+
+        static void Input()
+        {
+            string input = Console.ReadLine();
+
+            if (int.TryParse(input, out int number))
+            {
+                if (number == 1)
+                {
+                    CharacterInfo();
+                }
+                else if (number == 2)
+                {
+                    Inventory();
+                }
+                else if (number == 3)
+                {
+                    // 다른 행동에 대한 처리
+                }
+                else if (number == 0)
+                {
+                    gameStart();
+                }
+            }
+        }
+
+        static void Inventory()
+        {
+            Console.Clear();
+            Console.WriteLine("인벤토리:");
+            Console.WriteLine("1. 허름한 갑옷" + (player.EquippedItems.Contains("허름한 갑옷") ? " [E]" : ""));
+            Console.WriteLine("2. 낡은 검" + (player.EquippedItems.Contains("낡은 검") ? " [E]" : ""));
+            Console.WriteLine("0. 나가기\n");
+            Console.WriteLine("원하시는 행동의 번호를 입력해주세요");
+
+            string input = Console.ReadLine();
+
+            if (int.TryParse(input, out int selectedItem))
+            {
+                if (selectedItem >= 1 && selectedItem <= 2)
+                {
+                    EquipUnequipItem(selectedItem);
+                }
+                else if (selectedItem == 0)
+                {
+                    gameStart();
+                }
+                else
+                {
+                    Console.WriteLine("잘못된 입력입니다.");
+                    Console.ReadLine();
+                    Inventory();
+                }
+            }
+        }
+
+        static void EquipUnequipItem(int selectedItem)
+        {
+            string itemName = selectedItem == 1 ? "허름한 갑옷" : "낡은 검";
+
+            if (player.EquippedItems.Contains(itemName))
+            {
+                player.EquippedItems.Remove(itemName);
+                Console.WriteLine("{0}을(를) 해제하였습니다.", itemName);
+            }
+            else
+            {
+                player.EquippedItems.Add(itemName);
+                Console.WriteLine("{0}을(를) 장착하였습니다.", itemName);
+            }
+
+            Console.ReadLine();
+            Inventory();
+        }
+
+        static void playerInfo()
+        {
+            player = new Character("chad", "전사", 1, 100, 1500);
+        }
+
+        static void gameStart()
+        {
+            Console.Clear();
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("스파르타 마을에 오신 여러분을 환영합니다.");
+            Console.WriteLine("이곳에서 던전으로 들어가지 전 활동을 할 수 있습니다.");
+            Console.WriteLine("-------------------------------------");
+            Console.WriteLine("1. 상태보기");
+            Console.WriteLine("2. 인벤토리");
+            Console.WriteLine("-------------------------------------");
+            Console.WriteLine("원하시는 행동의 번호를 입력해주세요");
+            Input();
+        }
+    }
+
+    public class Character
+    {
+        public List<string> EquippedItems { get; } = new List<string>();
+        public string Name { get; }
+        public string Job { get; }
+        public int Level { get; }
+        public int Atk { get; set; }
+        public int Def { get; set; }
+        public int Hp { get; }
+        public int Gold { get; }
+
+        public Character(string name, string job, int level, int hp, int gold)
+        {
+            Name = name;
+            Job = job;
+            Level = level;
+            Hp = hp;
+            Gold = gold;
+        }
+    }
+}
